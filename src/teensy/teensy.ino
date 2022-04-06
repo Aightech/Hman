@@ -24,6 +24,11 @@ void setup()
   {
     motors[i] = new Motor( 22 - 3 * i, 22 - 3 * i - 1,       2 + 3 * i,    2 + 3 * i + 1,   2 + 3 * i + 2);
   }
+  for (int i = 0; i < NB_MOT; i++)
+  {
+    motors[i]->update_pos(0);
+
+  }
 
   Serial.begin(9600);
   Serial.println("Ethernet Teensy");
@@ -88,6 +93,11 @@ void loop()
           case 'M'://mode
             {
               motors[index]->mode = val;
+              Serial.print("Motor n");
+              Serial.print(index);
+              Serial.print(" mode:");
+              Serial.println(val);
+              
               break;
             }
           case 'V'://set value (current, position, speed depending of the mode seleted)
@@ -97,6 +107,10 @@ void loop()
                 case Motor::positionARTI_mode:
                   {
                     motors[index]->update_pos(val);
+//                    if(index==0)
+//                      Serial.print(String(val)+" ");
+//                    else
+//                      Serial.println(val);
                     break;
                   }
                   case Motor::positionCART_mode:

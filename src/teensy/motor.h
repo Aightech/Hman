@@ -4,7 +4,7 @@
 
 #define NB_MOT 2
 
-float Kp = 0.1, Ki = 0, Kd = 0;
+float Kp = 0.4, Ki = 0, Kd = 0.1;
 
 class Motor
 {
@@ -51,7 +51,7 @@ class Motor
     o += 410;
     //    Serial.print(output);
     //    Serial.print("\t");
-    //    Serial.println(o);
+    //Serial.println(o);
     o = (o > 3686) ? 3686 : o;
     analogWrite(drvPinPWM, o);
   };
