@@ -13,22 +13,18 @@ byte mac[] = {
 };
 IPAddress ip(192, 168, 127, 254);
 EthernetServer server(5000);
-int pkgSize = 2 + sizeof(DATA_TYPE); //data on 4 byte
+int pkgSize = 1 + 1 + 8*NB_MOT; //data on 4 byte
 
 long int ts = micros();
+int i;
+
+byte buff[255];
 
 void setup()
 {
 
   for (int i = 0; i < NB_MOT; i++)
-  {
     motors[i] = new Motor( 22 - 3 * i, 22 - 3 * i - 1,       2 + 3 * i,    2 + 3 * i + 1,   2 + 3 * i + 2);
-  }
-  for (int i = 0; i < NB_MOT; i++)
-  {
-    motors[i]->update_pos(0);
-
-  }
 
   Serial.begin(9600);
   Serial.println("Ethernet Teensy");
@@ -40,7 +36,6 @@ void setup()
     Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
   if (Ethernet.linkStatus() == LinkOFF)
     Serial.println("Ethernet cable is not connected.");
-
   // start the server
   server.begin();
   Serial.print("server is at ");
@@ -50,54 +45,22 @@ void setup()
 
 void loop()
 {
-  for (int i = 0; i < NB_MOT; i++)
-  {
-    //motors[i]->update(sp[i]);
-
-  }
-  //  //Serial.println(micros()-ts);
-  //  //ts = micros();
-  //  if (micros() - ts > 2000000)
-  //  {
-  //    sp[0] += (-1 + 2 * (0b1 & iii^(iii>>1))) * step;
-  //    sp[1] += (-1 + 2 * (0b1 & (iii^(iii>>1) >> 1))) * step;
-  //    ts = micros();
-  //    Serial.print((0b1 & iii^(iii>>1)));
-  //    Serial.print(" ");
-  //    Serial.println((0b1 & (iii^(iii>>1) >> 1)));
-  //    iii++;
-  //
-  //    if(iii==4)
-  //     iii=0;
-
-  //  }
-
-
-
   EthernetClient client = server.available();
-
   if (client) {
     Serial.println("new client");
     while (client.connected())
     {
-
       int len = client.available();
       if (len >= pkgSize)
       {
-        byte buff[pkgSize];
         client.read(buff, pkgSize);
-        uint8_t index = buff[1];
-        DATA_TYPE val = *(DATA_TYPE*)(buff + 2);
+        uint8_t  index = buff[1];
         switch (buff[0])
         {
           case 'M'://mode
             {
+              int32_t val = *(int32_t*)(buff + 2);
               motors[index]->mode = val;
-              Serial.print("Motor n");
-              Serial.print(index);
-              Serial.print(" mode:");
-              Serial.println(val);
-              
               break;
             }
           case 'V'://set value (current, position, speed depending of the mode seleted)
@@ -106,23 +69,20 @@ void loop()
               {
                 case Motor::positionARTI_mode:
                   {
-                    motors[index]->update_pos(val);
-//                    if(index==0)
-//                      Serial.print(String(val)+" ");
-//                    else
-//                      Serial.println(val);
+                    for(i=0; i<NB_MOT;i++)
+                      motors[i]->set_pos(*(int32_t*)(buff + 2 + 4*i));
                     break;
                   }
                   case Motor::positionCART_mode:
                   {
                     int sign = (index==0)?-1:1;
-                    motors[0]->update_pos(Motor::posCart[index]/2 + val/2);
-                    motors[0]->update_pos(sign*Motor::posCart[index]/2 - sign*val/2);
+                    //motors[0]->set_pos(Motor::posCart[index]/2 + val/2);
+                    //motors[0]->set_pos(sign*Motor::posCart[index]/2 - sign*val/2);
                     break;
                   }
                 case Motor::current_mode:
                   {
-                    motors[index]->update_current(val);
+                    //motors[index]->update_current(val);
                     break;
                   }
               }
@@ -149,11 +109,14 @@ void loop()
         }
       }
     }
-    delay(1);    // give the web browser time to receive the data
+    
     client.stop();// close the connection
     Serial.println("client disconnected");
     delay(10);
   }
+  for (int i = 0; i < NB_MOT; i++)
+      motors[i]->update();
+    //delay(10);    // give the web browser time to receive the data
 
 
 

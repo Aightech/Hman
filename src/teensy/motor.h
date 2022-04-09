@@ -4,7 +4,7 @@
 
 #define NB_MOT 2
 
-float Kp = 0.4, Ki = 0, Kd = 0.1;
+float Kp = 2, Ki = 0.2, Kd = 0.1;
 
 class Motor
 {
@@ -24,6 +24,7 @@ class Motor
     drvPinEn = drvPinEn_;
     drvPinDir = drvPinDir_;
     pinMode(drvPinPWM, OUTPUT);
+    analogWrite(drvPinPWM, 410);
     pinMode(drvPinDir, OUTPUT);
     digitalWrite(drvPinDir, LOW);
     pinMode(drvPinEn, OUTPUT);
@@ -31,32 +32,37 @@ class Motor
 
   }
 
+  void update()
+  {
+     position = encoder.read();
+      pid.Compute();
+      int16_t o = output;//Kp*(setPoint-position);//pid.step(setPoint, position );
+      if (o > 0)
+      {
+        digitalWrite(drvPinDir, LOW);
+      }
+      else
+      {
+        o = -o;
+        digitalWrite(drvPinDir, HIGH);
+      }
+  
+      o += 410;
+      //    Serial.print(output);
+      //    Serial.print("\t");
+      //Serial.println(o);
+      o = (o > 3686) ? 3686 : o;
+      analogWrite(drvPinPWM, o);
+  }
 
-  void update_pos(int sp)
+
+  void set_pos(int sp)
   {
     setPoint = sp;
-    position = encoder.read();
-    pid.Compute();
-    int16_t o = output;//Kp*(setPoint-position);//pid.step(setPoint, position );
-    if (o > 0)
-    {
-      digitalWrite(drvPinDir, LOW);
-    }
-    else
-    {
-      o = -o;
-      digitalWrite(drvPinDir, HIGH);
-    }
-
-    o += 410;
-    //    Serial.print(output);
-    //    Serial.print("\t");
-    //Serial.println(o);
-    o = (o > 3686) ? 3686 : o;
-    analogWrite(drvPinPWM, o);
+   
   };
 
-  void update_current(int16_t o)
+  void set_current(int16_t o)
   {
     if (o > 0)
       digitalWrite(drvPinDir, LOW);
@@ -74,7 +80,6 @@ class Motor
   {
     return encoder.read();
   }
-
   
   static long posCart[NB_MOT];
 
