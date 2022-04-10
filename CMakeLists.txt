@@ -30,8 +30,8 @@ cmake_minimum_required(VERSION 3.0)
 ######
 
 ###### PROJECT NAME AND VERSION ######
-set(EXEC_NAME teensyTCP)
-set(PROJECT_VERSION 1.0)
+set(EXEC_NAME Hman)
+set(PROJECT_VERSION 1.6)
 project(${EXEC_NAME} VERSION ${PROJECT_VERSION})
 
 ###### LIBRARY NAME ######
@@ -43,26 +43,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 ###### Special libraries  ######
 if(0)
-  set(EXTRA_LIBS "pthread" "sfml-graphics" "sfml-window" "sfml-system")
+  set(EXTRA_LIBS "pthread")
 endif()
 
-find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
-if(SFML_FOUND)
-  list(APPEND EXTRA_LIBS sfml-graphics) 
-  #list(APPEND EXTRA_INCLUDES)
-  message("-- SFML2 library Found")
-else ()
-  message("Couldn't find SFML2 library")
+if(0)
+  find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
+  if(SFML_FOUND)
+    list(APPEND EXTRA_LIBS sfml-graphics  sfml-window sfml-system) 
+    #list(APPEND EXTRA_INCLUDES)
+    message("-- SFML2 library Found")
+  else ()
+    message("Couldn't find SFML2 library")
+  endif()
 endif()
 
-# find_package(OpenCV REQUIRED)
-# if (OpenCV_FOUND)
-#   list(APPEND EXTRA_LIBS ${OpenCV_LIBS})
-#   list(APPEND EXTRA_INCLUDES ${OpenCV_INCLUDE_DIRS})
-#   message("-- Opencv library Found")
-# else ()
-#   message("Couldn't find Opencv library")
-# endif (OpenCV_FOUND)
+if(0)
+  find_package(OpenCV REQUIRED)
+  if (OpenCV_FOUND)
+    list(APPEND EXTRA_LIBS ${OpenCV_LIBS})
+    list(APPEND EXTRA_INCLUDES ${OpenCV_INCLUDE_DIRS})
+    message("-- Opencv library Found")
+  else ()
+    message("Couldn't find Opencv library")
+  endif (OpenCV_FOUND)
+endif()
+
 
 
 
