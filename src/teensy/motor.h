@@ -4,12 +4,12 @@
 
 #define NB_MOT 2
 
-float Kp = 1, Ki = 0.2, Kd = 0.05;
+float Kp = 1, Ki = 0 , Kd = 0;
 
 class Motor
 {
   public:
-    enum uint8_t {position_mode = 0, current_mode = 1};
+    enum Mode {position = 0, current = 1};
 
 
     Motor(int encPin1, int encPin2, int drvPinPWM_, int drvPinEn_, int drvPinDir_): m_encoder(Encoder(encPin1, encPin2)),
@@ -35,7 +35,7 @@ class Motor
     void update()
     {
       int16_t o=0;
-      if(m_mode==Motor::position_mode)
+      if(m_mode==Motor::position)
       {
         m_position = m_encoder.read();
         noInterrupts();
@@ -43,7 +43,7 @@ class Motor
         interrupts();
         o = m_output;
       }
-      else if(m_mode==Motor::current_mode)
+      else if(m_mode==Motor::current)
       {
         o = m_output;
       }
@@ -91,7 +91,7 @@ class Motor
     int m_drvPinPWM;
     int m_drvPinEn;
     int m_drvPinDir;
-    int m_mode = 0;
+    Motor::Mode m_mode =  Motor::current;
 
 
 };

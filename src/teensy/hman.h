@@ -3,7 +3,6 @@
 class Hman
 {
   public:
-    enum Mode {position = 0, current = 2};
 
     Hman(uint8_t nb_mot = (uint8_t)2)
     {
@@ -52,15 +51,23 @@ class Hman
       return m_pos_motor;
     };
 
-    int8_t& mode()
+    Motor::Mode& mode()
     {
       return m_mode;
+    }
+
+    void set_mode(Motor::Mode mode)
+    {
+      m_mode = mode;
+      for (i = 0; i < NB_MOT; i++)
+        m_motors[i]->m_mode = mode;
+      
     }
 
 
   private:
     int i;
-    int8_t m_mode;
+    Motor::Mode m_mode;
     Motor* m_motors[NB_MOT];
     int32_t m_pos_motor[NB_MOT];
     // Create an IntervalTimer object

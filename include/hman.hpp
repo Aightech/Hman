@@ -4,6 +4,7 @@
 #include "TCPclient.h"
 #include <chrono>
 #include <vector>
+#include <iostream>
 
 #define HMAN_PORT 5000
 
@@ -92,12 +93,12 @@ class Hman
     void
     get_pos(Pos &pos)
     {
-        m_cmd[0] = 'V';
+        m_cmd[0] = 'P';
         m_cmd[1] = m_nb_mot;
         m_client.write(m_cmd, m_pkgSize);
-        m_client.read(m_buff, m_pkgSize);
+        m_client.read(m_buff, m_nb_mot*4);
         for(int i = 0; i < m_nb_mot; i++)
-            pos.pos[i] = ((int32_t *)(m_buff + 2))[i];
+            pos.pos[i] = ((int32_t *)(m_buff))[i];
     }
 
     void
@@ -117,13 +118,16 @@ class Hman
 
             this->get_pos(listPos[i]);
             listPos[i].t = duration_cast<microseconds>(now - begin).count();
+	    std::cout << listPos[i].pos[0] << ":"<< listPos[i].pos[1] << ":"<< listPos[i].t  << std::endl;
             i++;
+	    usleep(1000);
             now = steady_clock::now();
         }
+	std::cout << i << std::endl;
     }
 
     void
-    play_path(int32_t time, std::vector<Pos> &listPos)
+    play_path(std::vector<Pos> &listPos)
     {
         this->set_mode(Hman::position);
         usleep(10000);
@@ -135,6 +139,7 @@ class Hman
         {
             while(duration_cast<us>(sc::now() - begin).count() < p.t) {};
             this->set_values(p.pos, m_nb_mot);
+	    std::cout << p.pos[0] << ":"<< p.pos[1] << ":"<< p.t  << std::endl;
         }
     }
 

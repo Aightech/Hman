@@ -22,6 +22,8 @@ int i;
 byte buff[255];
 IntervalTimer myTimer;
 
+int state = HIGH;
+
 void setup()
 {
 
@@ -35,15 +37,22 @@ void setup()
   if (Ethernet.linkStatus() == LinkOFF)
     Serial.println("Ethernet cable is not connected.");
 
+ Serial.println("Ok");
   server.begin();// start the server
-  Serial.println("server is at " + Ethernet.localIP());
+  Serial.print("server is at " );
+  Serial.println(Ethernet.localIP());
   ts = micros();
 
-  myTimer.begin(update, 1000);
+  pinMode(13, OUTPUT);
+   //digitalWrite(13, state);
+  myTimer.begin(update11, 5000);
 }
 
-void update()
+
+void update11()
 {
+  digitalWrite(13, state);
+  state = !state;
   hman.update();
 }
 
@@ -63,19 +72,20 @@ void loop()
         {
           case 'M'://mode
             {
-              hman.mode() = *(int32_t*)(buff + 2);
+              hman.set_mode((Motor::Mode)*(int32_t*)(buff + 2));
+              Serial.println(*(int32_t*)(buff + 2));
               break;
             }
           case 'V'://set value (current, position, speed depending of the mode seleted)
             {
               switch (hman.mode())
               {
-                case Hman::position:
+                case Motor::position:
                   {
                     hman.set_articular_pos((int32_t*)(buff + 2), index);
                     break;
                   }
-                case Hman::current:
+                case Motor::current:
                   {
                     hman.set_motor_current((int32_t*)(buff + 2), index);
                     break;

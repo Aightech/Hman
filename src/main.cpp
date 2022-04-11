@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include <vector>
+#include <iostream>
 
 #include "joystick.h"
 
@@ -22,18 +23,40 @@ int main(int argc, char **argv)
   cJoystick js;
 
    Hman hman;
+   hman.connect(argv[1]);
 
-   std::vector<Hman::Pos> poses(100000);
-   hman.record_path(500000, poses);
-   // hman.connect(argv[1]);
+   std::vector<Hman::Pos> poses(4000);
+   //hman.record_path(500000, poses);
+   
 
-   // for(;;)
-   //   {
-   // 	int32_t posx = js.joystickValue(0)/15;
-   // 	int32_t posy = js.joystickValue(1)/15;
-   // 	hman.set_cartesian_pos(posx, posy);
-   // 	usleep(1000);
-   //   }
+   for(;;)
+     {
+   	int32_t posx = js.joystickValue(0)/15;
+   	int32_t posy = js.joystickValue(1)/15;
+	if(js.buttonPressed(0))
+	  {
+	    hman.set_cartesian_pos(posx, posy);
+	    usleep(1000);
+	  }
+	if(js.buttonPressed(1))
+	  {
+	    hman.turn_off_current();
+	    usleep(1000);
+	  }
+	if(js.buttonPressed(2))
+	  {
+	    std::cout << "start recording" << std::endl;
+	    hman.record_path(5000000, poses);
+	    std::cout << "stop recording" << std::endl;
+	  }
+	if(js.buttonPressed(3))
+	  {
+	    std::cout << "start playing" << std::endl;
+	    hman.play_path(poses);
+	    std::cout << "stop playing" << std::endl;
+	  }
+	
+     }
    
 
    return EXIT_SUCCESS;
