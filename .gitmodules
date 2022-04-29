@@ -1,7 +1,7 @@
-[submodule "lib/TCPclient"]
-	path = lib/TCPclient
-	url = git@github.com:Aightech/TCPclient
-	branch = main
 [submodule "lib/joystick"]
 	path = lib/joystick
 	url = git@github.com:Aightech/joystick
+[submodule "lib/com_client"]
+	path = lib/com_client
+	url = git@github.com:Aightech/com_client
+	branch = main

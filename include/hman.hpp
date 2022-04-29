@@ -1,7 +1,7 @@
 #ifndef HMAN_HPP
 #define HMAN_HPP
 
-#include "TCPclient.h"
+#include "com_client.hpp"
 #include <chrono>
 #include <vector>
 #include <iostream>
@@ -40,7 +40,7 @@ class Hman
         m_mode = mode;
         m_cmd[0] = 'M';
         *(uint32_t *)(m_cmd + 2) = mode;
-        m_client.write(m_cmd, m_pkgSize);
+        m_client.writeS(m_cmd, m_pkgSize);
     };
 
     void
@@ -49,7 +49,7 @@ class Hman
         m_cmd[0] = 'V';
         m_cmd[1] = m_nb_mot;
         for(int i = 0; i < n; i++) { ((int32_t *)(m_cmd + 2))[i] = val[i]; }
-        m_client.write(m_cmd, m_pkgSize);
+        m_client.writeS(m_cmd, m_pkgSize);
     };
 
     void
@@ -95,8 +95,8 @@ class Hman
     {
         m_cmd[0] = 'P';
         m_cmd[1] = m_nb_mot;
-        m_client.write(m_cmd, m_pkgSize);
-        m_client.read(m_buff, m_nb_mot*4);
+        m_client.writeS(m_cmd, m_pkgSize);
+        m_client.readS(m_buff, m_nb_mot*4);
         for(int i = 0; i < m_nb_mot; i++)
             pos.pos[i] = ((int32_t *)(m_buff))[i];
     }
@@ -144,7 +144,7 @@ class Hman
     }
 
     private:
-    TCPclient m_client;
+    Communication::Client m_client;
     int m_pkgSize;
     int m_nb_mot;
     int m_mode = -1;

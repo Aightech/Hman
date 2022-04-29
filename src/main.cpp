@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "joystick.h"
-
 #include "hman.hpp"
 
 #define DATA_TYPE int32_t
