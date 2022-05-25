@@ -8,6 +8,8 @@
 !/include/*
 !/lib
 !/lib/*
+!/tool_lib
+!/tool_lib/*
 !/config
 !/config/*
 !/docs
@@ -23,5 +25,5 @@
 !Doxyfile
 !todo.org
 !/.dir-locals.el
-
+!/README.md
 !/.clang-format
