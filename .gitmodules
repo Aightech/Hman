@@ -1,7 +1,7 @@
-[submodule "lib/joystick"]
-	path = lib/joystick
-	url = git@github.com:Aightech/joystick
 [submodule "lib/com_client"]
 	path = lib/com_client
 	url = git@github.com:Aightech/com_client
 	branch = main
+[submodule "tool_lib/joystick"]
+	path = tool_lib/joystick
+	url = git@github.com:Aightech/joystick.git
