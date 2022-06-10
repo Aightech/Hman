@@ -4,7 +4,7 @@
 
 #define NB_MOT 2
 
-float Kp = 1, Ki = 0 , Kd = 0;
+float Kp = 0.5, Ki = 2 , Kd = 0;
 
 class Motor
 {
@@ -15,11 +15,12 @@ class Motor
     Motor(int encPin1, int encPin2, int drvPinPWM_, int drvPinEn_, int drvPinDir_): m_encoder(Encoder(encPin1, encPin2)),
       m_pid(QuickPID(&m_position, &m_output, &m_setPoint))
     {
-
+      m_id = nb_mot;
+      nb_mot++;
       m_pid.SetTunings(Kp, Ki, Kd);
       m_pid.SetMode(m_pid.Control::automatic);
-      m_pid.SetOutputLimits(-3686, 3686),
-                          analogWriteResolution(12);
+      m_pid.SetOutputLimits(-3686, 3686);
+      analogWriteResolution(12);
       m_drvPinPWM = drvPinPWM_;
       m_drvPinEn = drvPinEn_;
       m_drvPinDir = drvPinDir_;
@@ -29,6 +30,7 @@ class Motor
       digitalWrite(m_drvPinDir, LOW);
       pinMode(m_drvPinEn, OUTPUT);
       digitalWrite(m_drvPinEn, HIGH);
+      //SetAntiWindupMode();
 
     }
 
@@ -42,14 +44,17 @@ class Motor
         m_pid.Compute();
         interrupts();
         o = m_output;
+        
       }
       else if(m_mode==Motor::current)
       {
         o = m_output;
       }
+
+      
       if (o > 0)
       {
-        digitalWrite(m_drvPinDir, LOW);
+        digitalWrite(m_drvPinDir, LOW);   
       }
       else
       {
@@ -58,9 +63,6 @@ class Motor
       }
 
       o += 410;
-      //    Serial.print(m_output);
-      //    Serial.print("\t");
-      //Serial.println(o);
       o = (o > 3686) ? 3686 : o;
       analogWrite(m_drvPinPWM, o);
     }
@@ -82,6 +84,10 @@ class Motor
       return m_encoder.read();
     }
 
+    static int nb_mot;
+
+    int m_id;
+
     Encoder m_encoder;
     QuickPID m_pid;
     float m_current = 0;
@@ -91,7 +97,8 @@ class Motor
     int m_drvPinPWM;
     int m_drvPinEn;
     int m_drvPinDir;
-    Motor::Mode m_mode =  Motor::current;
+    int16_t v;
+    Motor::Mode m_mode =  Motor::position;
 
 
 };

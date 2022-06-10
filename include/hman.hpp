@@ -31,7 +31,7 @@ class Hman
     void
     connect(const char *address)
     {
-        m_client.open_connection(address, HMAN_PORT);
+      m_client.open_connection(address, HMAN_PORT,-1);
     };
 
     void

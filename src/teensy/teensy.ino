@@ -3,8 +3,9 @@
 
 #include "hman.h"
 
-Hman hman;
+int Motor::nb_mot =0;
 
+Hman hman;
 
 
 
@@ -26,6 +27,10 @@ int state = HIGH;
 
 void setup()
 {
+  
+  pinMode(13, OUTPUT);
+   //digitalWrite(13, state);
+  myTimer.begin(update11, 5000);
 
   Serial.begin(9600);
   Serial.println("Ethernet Teensy");
@@ -43,9 +48,6 @@ void setup()
   Serial.println(Ethernet.localIP());
   ts = micros();
 
-  pinMode(13, OUTPUT);
-   //digitalWrite(13, state);
-  myTimer.begin(update11, 5000);
 }
 
 
@@ -59,6 +61,7 @@ void update11()
 void loop()
 {
   EthernetClient client = server.available();
+
   if (client) {
     Serial.println("new client");
     while (client.connected())
@@ -83,6 +86,17 @@ void loop()
                 case Motor::position:
                   {
                     hman.set_articular_pos((int32_t*)(buff + 2), index);
+//                    Serial.print(((int32_t*)(buff + 2))[0]);
+//                    Serial.print(" ");
+//                    Serial.print(((int32_t*)(buff + 2))[1]);
+//                    Serial.print(" ");
+//                    Serial.print(hman.m_motors[0]->v);
+//                    Serial.print(" ");
+//                    Serial.print(hman.m_motors[1]->v);
+//                    Serial.print(" ");
+//                    Serial.print(hman.get_pos()[0]);
+//                    Serial.print(" ");
+//                    Serial.println(hman.get_pos()[1]);
                     break;
                   }
                 case Motor::current:

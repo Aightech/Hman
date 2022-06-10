@@ -6,8 +6,10 @@ class Hman
 
     Hman(uint8_t nb_mot = (uint8_t)2)
     {
-      for (i = 0; i < NB_MOT; i++)
-        m_motors[i] = new Motor( 22 - 3 * i, 22 - 3 * i - 1,       2 + 3 * i,    2 + 3 * i + 1,   2 + 3 * i + 2);
+      for (i = 0; i < nb_mot; i++)
+        m_motors[i] = new Motor( 23 - 2 * i-1, 23 - 2 * i ,       2 + 3 * i,    2 + 3 * i + 1,   2 + 3 * i + 2);
+      for (i = 0; i < 2; i++)
+        m_motors[i]->update();
       
     };
 
@@ -65,7 +67,7 @@ class Hman
     }
 
 
-  private:
+  //private:
     int i;
     Motor::Mode m_mode;
     Motor* m_motors[NB_MOT];
