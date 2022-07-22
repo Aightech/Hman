@@ -101,6 +101,16 @@ class Hman
             pos.pos[i] = ((int32_t *)(m_buff))[i];
     }
 
+  void
+  get_acc(float arr[3], int32_t pos[2])
+    {
+        m_cmd[0] = 'X';
+        m_cmd[1] = m_nb_mot;
+        m_client.writeS(m_cmd, m_pkgSize);
+        m_client.readS((uint8_t*)arr, 3*4);
+	m_client.readS((uint8_t*)pos, 2*4);
+    }
+
     void
     record_path(int32_t time, std::vector<Pos> &listPos)
     {

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <vector>
 
+#include <lsl_cpp.h>
 #include "hman.hpp"
 #include "joystick.h"
 
@@ -19,60 +20,53 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    cJoystick js;
-    try
-    {
-        js.connect();
-    }
-    catch(const std::string err)
-    {
-        std::cout << err << std::endl;
-    }
-
+    float arr[3];
+    int32_t pos[3];
     Hman hman;
     try
     {
-      hman.connect(argv[1]);
+        hman.connect(argv[1]);
+	int nb_ch = 5;
+        lsl::stream_info lsl_info("acc", "sample", nb_ch, 0,
+                                     lsl::cf_float32);
+        lsl::stream_outlet lsl_outlet(lsl_info);
+	std::vector<float> sample(nb_ch);
+	
+	lsl::stream_info lsl_info_pos("pos", "sample", 2, 0,
+                                     lsl::cf_int32);
+	lsl::stream_outlet lsl_outlet_pos(lsl_info_pos);
+	std::vector<int32_t> sample_pos(2);
+	std::cout << "[INFOS] Now sending data... " << std::endl;
+	for(;;)
+	{
+	    
+	  hman.get_acc(arr, pos);
+	    //     hman.set_cartesian_pos(posx, posy);
+	    //     hman.turn_off_current();
+	    //     std::vector<Hman::Pos> poses(4000);
+	    //     hman.record_path(5000000, poses);
+	    //     hman.play_path(poses);
+
+	    sample[0] = arr[0];
+            sample[1] = arr[1];
+	    sample[2] = arr[2];
+            lsl_outlet.push_sample(sample);
+
+	    sample_pos[0] = pos[0];
+	    sample_pos[1] = pos[1];
+	    lsl_outlet_pos.push_sample(sample_pos);
+	}
     }
     catch(const std::string err)
     {
-        std::cout << err << std::endl;
+      std::cout << err << std::endl;
     }
-
-    std::cout << "\n\nh" << std::endl;
- 
-    std::vector<Hman::Pos> poses(4000);
-
-    for(;;)
+    catch(std::exception &e)
     {
-        int32_t posx = js.joystickValue(0) / 15;
-        int32_t posy = js.joystickValue(1) / 15;
-        std::cout << "                            \xd" << posx << " " << posy
-                  << "\xd" << std::flush;
-
-        if(js.buttonPressed(0))
-        {
-            hman.set_cartesian_pos(posx, posy);
-            usleep(1000);
-        }
-        if(js.buttonPressed(1))
-        {
-            hman.turn_off_current();
-            usleep(1000);
-        }
-        if(js.buttonPressed(2))
-        {
-            std::cout << "start recording" << std::endl;
-            hman.record_path(5000000, poses);
-            std::cout << "stop recording" << std::endl;
-        }
-        if(js.buttonPressed(3))
-        {
-            std::cout << "start playing" << std::endl;
-            hman.play_path(poses);
-            std::cout << "stop playing" << std::endl;
-        }
+        std::cerr << "[ERROR] Got an exception: " << e.what() << std::endl;
     }
-
+    
+    
+    
     return EXIT_SUCCESS;
 }
