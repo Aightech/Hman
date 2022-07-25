@@ -53,8 +53,6 @@ void setup()
   traj_timer.begin(update_traj, hman.m_traj_dt_micro);
 
   Serial.begin(9600);
-  
-
 
   Ethernet.begin(mac, ip);// start the Ethernet connection and the server:
   if (Ethernet.hardwareStatus() == EthernetNoHardware)// Check for Ethernet hardware present
@@ -62,20 +60,15 @@ void setup()
   if (Ethernet.linkStatus() == LinkOFF)
     Serial.println("Ethernet cable is not connected.");
 
-  server.begin();// start the server
-//  Serial.print("server is at " );
-//  Serial.println(Ethernet.localIP());
-//  Serial.println(Ethernet.subnetMask());
-//  Serial.println(Ethernet.gatewayIP());
-//  Serial.println(Ethernet.dhcpServerIP());
+  server.begin();
   ts = micros();
   
   accel.begin();
   accel.setRange(ADXL345_RANGE_2_G);
   accel.setDataRate(ADXL345_DATARATE_3200_HZ);
   //displaySensorDetails();
-  int dx=40,dy=0, vm=20, am=60;
   
+  int dx=40,dy=0, vm=20, am=60;
   hman.add_delta_traj(dx, dy, vm,am);
   hman.add_delta_traj(-dx, -dy,vm,am);
   hman.start_traj();
@@ -121,17 +114,6 @@ void loop()
                 case Motor::position:
                   {
                     hman.set_articular_pos((int32_t*)(buff + 2), index);
-//                    Serial.print(((int32_t*)(buff + 2))[0]);
-//                    Serial.print(" ");
-//                    Serial.print(((int32_t*)(buff + 2))[1]);
-//                    Serial.print(" ");
-//                    Serial.print(hman.m_motors[0]->v);
-//                    Serial.print(" ");
-//                    Serial.print(hman.m_motors[1]->v);
-//                    Serial.print(" ");
-//                    Serial.print(hman.get_pos()[0]);
-//                    Serial.print(" ");
-//                    Serial.println(hman.get_pos()[1]);
                     break;
                   }
                 case Motor::current:
@@ -171,6 +153,22 @@ void loop()
             {
               uint8_t r = hman.home();
               client.write(&r, 1);
+              break;
+            }
+            case 'T':// trajecory mode
+            {
+              if(index ==1)
+                hman.start_traj()
+              else if(index==2)
+              {
+                int dx = (int32_t*)(buff + 2+4*0)
+                int dy = (int32_t*)(buff + 2+4*1)
+                int vm = (int32_t*)(buff + 2+4*2)
+                int am = (int32_t*)(buff + 2+4*3)
+                hman.add_delta_traj(dx, dy,vm,am);
+              }
+              else
+                hman.stop_traj()
               break;
             }
         }

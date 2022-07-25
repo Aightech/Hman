@@ -2,15 +2,16 @@
 #define HMAN_HPP
 
 #include "com_client.hpp"
+#include "multi_camera.hpp"
+
 #include <chrono>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #define HMAN_PORT 5000
 
 class Hman
 {
-
     public:
     enum Mode
     {
@@ -24,134 +25,122 @@ class Hman
         int32_t t;
     } Pos;
 
-    Hman(int nb_mot = 2) : m_nb_mot(nb_mot) { m_pkgSize = 2 + nb_mot * 8; };
+    Hman(int nb_mot = 2);
 
     ~Hman() { m_client.close_connection(); };
 
-    void
-    connect(const char *address)
-    {
-      m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,-1);
-    };
+    /**
+     * @brief Starts the communication with the Hman.
+     *
+     * @param address The IP address of the Hman.
+     */
+    void connect(const char *address);
 
-    void
-    set_mode(Hman::Mode mode)
-    {
-        m_mode = mode;
-        m_cmd[0] = 'M';
-        *(uint32_t *)(m_cmd + 2) = mode;
-        m_client.writeS(m_cmd, m_pkgSize);
-    };
+    /**
+     * @brief Sets the mode of the Hman.
+     *
+     * @param mode Can be Hman::position or Hman::current.
+     */
+    void set_mode(Hman::Mode mode);
 
-    void
-    set_values(int32_t *val, int n)
-    {
-        m_cmd[0] = 'V';
-        m_cmd[1] = m_nb_mot;
-        for(int i = 0; i < n; i++) { ((int32_t *)(m_cmd + 2))[i] = val[i]; }
-        m_client.writeS(m_cmd, m_pkgSize);
-    };
+    /**
+     * @brief Sets the values of the motors.
+     *
+     * @param val The values of the motors.
+     * @param n The index of motor.
+     */
+    void set_values(int32_t *val, int index);
 
-    void
-    set_cartesian_pos(int32_t posx, int32_t posy, int32_t posz = 0)
-    {
-        if(m_mode != Hman::position)
-            this->set_mode(Hman::position);
+    /**
+     * @brief Sets the cartesian position of the Hman.
+     *
+     * @param posx The x position.
+     * @param posy The y position.
+     * @param posz The z position.
+     */
+    void set_cartesian_pos(int32_t posx, int32_t posy, int32_t posz = 0);
 
-        int32_t pos[3] = {-posx + posy, -posx - posy, posz};
-        this->set_values(pos, 3);
-    };
+    /**
+     * @brief Set the articular position of the Hman.
+     *
+     * @param pos1 The position of the first motor.
+     * @param pos2 The position of the second motor.
+     * @param pos3 The position of the third motor.
+     */
+    void set_articular_pos(int32_t pos1, int32_t pos2, int32_t pos3 = 0);
 
-    void
-    set_articular_pos(int32_t pos1, int32_t pos2, int32_t pos3 = 0)
-    {
-        if(m_mode != Hman::position)
-            this->set_mode(Hman::position);
-        int32_t pos[3] = {pos1, pos2, pos3};
-        this->set_values(pos, 3);
-    };
+    /**
+     * @brief Sets the current of the motors.
+     *
+     * @param cur1 The current of the first motor.
+     * @param cur2 The current of the second motor.
+     * @param cur3 The current of the third motor.
+     */
+    void set_motors_current(int32_t cur1, int32_t cur2, int32_t cur3 = 0);
 
-    void
-    set_motors_current(int32_t cur1, int32_t cur2, int32_t cur3 = 0)
-    {
-        if(m_mode != Hman::current)
-            this->set_mode(Hman::current);
-        int32_t pos[3] = {cur1, cur2, cur3};
-        this->set_values(pos, 3);
-    };
+    /**
+     * @brief Turns off the current of the motors.
+     */
+    void turn_off_current();
 
-    void
-    turn_off_current()
-    {
-        if(m_mode != Hman::current)
-            this->set_mode(Hman::current);
-        int32_t cur[m_nb_mot];
-        for(int i = 0; i < m_nb_mot; i++) cur[i] = 0;
-        this->set_values(cur, m_nb_mot);
-    }
+    /**
+     * @brief Gets the position of the Hman's encoders.
+     *
+     * @param pos The position of the Hman.
+     */
+    void get_pos(Pos &pos);
 
-    void
-    get_pos(Pos &pos)
-    {
-        m_cmd[0] = 'P';
-        m_cmd[1] = m_nb_mot;
-        m_client.writeS(m_cmd, m_pkgSize);
-        m_client.readS(m_buff, m_nb_mot*4);
-        for(int i = 0; i < m_nb_mot; i++)
-            pos.pos[i] = ((int32_t *)(m_buff))[i];
-    }
+    /**
+     * @brief Gets the acceleration and position of the Hman's encoders.
+     * 
+     * @param arr The acceleration of the Hman.
+     * @param pos The articular position of the Hman.
+     */
+    void get_acc(float arr[3], int32_t pos[2]);
 
-  void
-  get_acc(float arr[3], int32_t pos[2])
-    {
-        m_cmd[0] = 'X';
-        m_cmd[1] = m_nb_mot;
-        m_client.writeS(m_cmd, m_pkgSize);
-        m_client.readS((uint8_t*)arr, 3*4);
-	m_client.readS((uint8_t*)pos, 2*4);
-    }
+    /**
+     * @brief Records the hman's position and store them in a vector.
+     * 
+     * @param time The amount of time to record.
+     * @param listPos the vector where the positions are stored.
+     */
+    void record_path(int32_t time, std::vector<Pos> &listPos);
 
-    void
-    record_path(int32_t time, std::vector<Pos> &listPos)
-    {
-        this->turn_off_current();
-        usleep(10000);
-        using namespace std::chrono;
-        int i = 0;
-        steady_clock::time_point begin = steady_clock::now();
-        steady_clock::time_point now = steady_clock::now();
-        while(duration_cast<microseconds>(now - begin).count() < time)
-        {
+    /**
+     * @brief Plays back the recorded position of the hman.
+     * 
+     * @param listPos The vector containing the positions.
+     */
+    void play_path(std::vector<Pos> &listPos);
 
-            if(i >= listPos.size())
-                listPos.push_back(Hman::Pos());
+    /**
+     * @brief Starts the hman trajectory loop
+     */
+    void start_trajectory();
 
-            this->get_pos(listPos[i]);
-            listPos[i].t = duration_cast<microseconds>(now - begin).count();
-	    std::cout << listPos[i].pos[0] << ":"<< listPos[i].pos[1] << ":"<< listPos[i].t  << std::endl;
-            i++;
-	    usleep(1000);
-            now = steady_clock::now();
-        }
-	std::cout << i << std::endl;
-    }
+    /**
+     * @brief Stops the hman trajectory loop
+     */
+    void stop_trajectory();
 
-    void
-    play_path(std::vector<Pos> &listPos)
-    {
-        this->set_mode(Hman::position);
-        usleep(10000);
-        using namespace std::chrono;
-        typedef std::chrono::steady_clock sc;
-        typedef microseconds us;
-        sc::time_point begin = sc::now();
-        for(auto p : listPos)
-        {
-            while(duration_cast<us>(sc::now() - begin).count() < p.t) {};
-            this->set_values(p.pos, m_nb_mot);
-	    std::cout << p.pos[0] << ":"<< p.pos[1] << ":"<< p.t  << std::endl;
-        }
-    }
+    /**
+     * @brief Adds a control point to the trajectory loop
+     *
+     * @param dx The distance to the next control point in x direction
+     * @param dy The distance to the next control point in y direction
+     * @param vmax The maximum velocity
+     * @param amax The maximun acceleration
+     */
+    void add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax);
+
+    /**
+     * @brief Gets the frame of the camera with coressponding index
+     *
+     * @param index Index of the camera.
+     * @param wrap Get the frame with wrapped perspective.
+     * @return cv::Mat The frame of the camera.
+     */
+    cv::Mat get_frame(int index, bool wrap = false);
 
     private:
     Communication::Client m_client;
@@ -160,6 +149,8 @@ class Hman
     int m_mode = -1;
     uint8_t m_cmd[255];
     uint8_t m_buff[255];
+
+    MultiCam m_cameras;
 };
 
 #endif
