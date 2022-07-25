@@ -66,7 +66,7 @@ void Hman::get_pos(Pos &pos)
 {
     m_cmd[0] = 'P';
     m_cmd[1] = m_nb_mot;
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client.writeS(m_cmd, m_pkgSize); 
     m_client.readS(m_buff, m_nb_mot * 4);
     for(int i = 0; i < m_nb_mot; i++) pos.pos[i] = ((int32_t *)(m_buff))[i];
 }
