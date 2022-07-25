@@ -14,3 +14,7 @@
 	path = lib/camera
 	url = git@github.com:Aightech/camera
 	branch = main
+[submodule "lib/ni-daqmx"]
+	path = lib/ni-daqmx
+	url = git@github.com:Aightech/ni-daqmx
+	branch = main

@@ -2,7 +2,10 @@
 #define HMAN_HPP
 
 #include "com_client.hpp"
+#define int64 iint64 //conflicting typedef of int64
 #include "multi_camera.hpp"
+#undef int64
+#include "ni-daqmx.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -133,14 +136,8 @@ class Hman
      */
     void add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax);
 
-    /**
-     * @brief Gets the frame of the camera with coressponding index
-     *
-     * @param index Index of the camera.
-     * @param wrap Get the frame with wrapped perspective.
-     * @return cv::Mat The frame of the camera.
-     */
-    cv::Mat get_frame(int index, bool wrap = false);
+    MultiCam cameras;
+    NI::ATI::FT6_sensor FTsensor;
 
     private:
     Communication::Client m_client;
@@ -150,7 +147,7 @@ class Hman
     uint8_t m_cmd[255];
     uint8_t m_buff[255];
 
-    MultiCam m_cameras;
+    
 };
 
 #endif

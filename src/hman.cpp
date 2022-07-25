@@ -3,7 +3,7 @@
 Hman::Hman(int nb_mot) : m_nb_mot(nb_mot)
 {
     m_pkgSize = 2 + nb_mot * 8;
-    for(int i = 0; i < 2; i++) m_cameras.addCamera(i * 2, 640, 360);
+    for(int i = 0; i < 2; i++) cameras.addCamera(i * 2, 640, 360);
 };
 
 void Hman::connect(const char *address)
@@ -144,9 +144,4 @@ void Hman::add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax)
     *(int32_t *)(m_cmd + 10) = vmax;
     *(int32_t *)(m_cmd + 14) = amax;
     m_client.writeS(m_cmd, m_pkgSize);
-}
-
-cv::Mat Hman::get_frame(int index, bool wrap)
-{
-    return m_cameras.getFrame(index, wrap);
 }
