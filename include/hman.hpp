@@ -39,6 +39,8 @@ class Hman
      */
     void connect(const char *address);
 
+    void setCameras();
+
     /**
      * @brief Sets the mode of the Hman.
      *
