@@ -3,13 +3,19 @@
 Hman::Hman(int nb_mot) : m_nb_mot(nb_mot)
 {
     m_pkgSize = 2 + nb_mot * 8;
-    for(int i = 0; i < 2; i++) cameras.addCamera(i * 2, 640, 360);
+    
 };
 
 void Hman::connect(const char *address)
 {
     m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,
                              -1);
+}
+
+void
+Hman::setCameras()
+{
+    for(int i = 0; i < 2; i++) cameras.addCamera(i * 2, 640, 360);
 }
 
 void Hman::set_mode(Hman::Mode mode)
