@@ -66,18 +66,17 @@ void Hman::get_pos(Pos &pos)
 {
     m_cmd[0] = 'P';
     m_cmd[1] = m_nb_mot;
-    m_client.writeS(m_cmd, m_pkgSize); 
-    m_client.readS(m_buff, m_nb_mot * 4);
+    m_client.writeS(m_cmd, m_pkgSize);
+    m_client.readS(m_buff, m_nb_mot * 4+2, true);
     for(int i = 0; i < m_nb_mot; i++) pos.pos[i] = ((int32_t *)(m_buff))[i];
 }
 
-void Hman::get_acc(float arr[3], int32_t pos[2])
+void Hman::get_acc(float arr[3])
 {
     m_cmd[0] = 'X';
     m_cmd[1] = m_nb_mot;
     m_client.writeS(m_cmd, m_pkgSize);
     m_client.readS((uint8_t *)arr, 3 * 4);
-    m_client.readS((uint8_t *)pos, 2 * 4);
 }
 
 void Hman::record_path(int32_t time, std::vector<Pos> &listPos)

@@ -99,7 +99,7 @@ class Hman
      * @param arr The acceleration of the Hman.
      * @param pos The articular position of the Hman.
      */
-    void get_acc(float arr[3], int32_t pos[2]);
+    void get_acc(float arr[3]);
 
     /**
      * @brief Records the hman's position and store them in a vector.

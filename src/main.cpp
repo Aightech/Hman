@@ -40,7 +40,7 @@ main(int argc, char **argv)
 	for(;;)
 	{
 	    
-	  hman.get_acc(arr, pos);
+	  hman.get_acc(arr);
 	    //     hman.set_cartesian_pos(posx, posy);
 	    //     hman.turn_off_current();
 	    //     std::vector<Hman::Pos> poses(4000);
