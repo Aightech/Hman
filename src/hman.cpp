@@ -1,20 +1,32 @@
 #include "hman.hpp"
+#include "strANSIseq.hpp"
 
-Hman::Hman(int nb_mot) : m_nb_mot(nb_mot)
+Hman::Hman(int nb_mot, bool verbose) : m_nb_mot(nb_mot), m_verbose(verbose)
 {
+    LOG("%s\t\tInitialised.\n",
+        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
     m_pkgSize = 2 + nb_mot * 8;
-    
+};
+
+Hman::~Hman()
+{
+    LOG("%s\t\tDisconnecting...\n",
+        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
+    m_client.close_connection();
 };
 
 void Hman::connect(const char *address)
 {
+    LOG("%s\t\tConnecting...\n",
+        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
     m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,
                              -1);
 }
 
-void
-Hman::setCameras()
+void Hman::start_cameras()
 {
+    LOG("%s\t\tSetting cameras...\n",
+        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
     for(int i = 0; i < 2; i++) cameras.addCamera(i * 2, 640, 360);
 }
 
@@ -73,7 +85,7 @@ void Hman::get_pos(Pos &pos)
     m_cmd[0] = 'P';
     m_cmd[1] = m_nb_mot;
     m_client.writeS(m_cmd, m_pkgSize);
-    m_client.readS(m_buff, m_nb_mot * 4+2, true);
+    m_client.readS(m_buff, m_nb_mot * 4 + 2, true);
     for(int i = 0; i < m_nb_mot; i++) pos.pos[i] = ((int32_t *)(m_buff))[i];
 }
 

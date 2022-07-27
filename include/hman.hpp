@@ -28,9 +28,9 @@ class Hman
         int32_t t;
     } Pos;
 
-    Hman(int nb_mot = 2);
+    Hman(int nb_mot = 2, bool verbose=false);
 
-    ~Hman() { m_client.close_connection(); };
+    ~Hman();
 
     /**
      * @brief Starts the communication with the Hman.
@@ -39,7 +39,7 @@ class Hman
      */
     void connect(const char *address);
 
-    void setCameras();
+    void start_cameras();
 
     /**
      * @brief Sets the mode of the Hman.
@@ -148,6 +148,7 @@ class Hman
     int m_mode = -1;
     uint8_t m_cmd[255];
     uint8_t m_buff[255];
+    bool m_verbose=false;
 
     
 };
