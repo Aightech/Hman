@@ -12,6 +12,7 @@ Hman::~Hman()
 {
     LOG("%s\t\tDisconnecting...\n",
         ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
+    m_client.get_stat('d',18);
     m_client.close_connection();
 };
 
