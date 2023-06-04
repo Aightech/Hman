@@ -1,11 +1,8 @@
 #ifndef HMAN_HPP
 #define HMAN_HPP
 
-#include "com_client.hpp"
-#define int64 iint64 //conflicting typedef of int64
-#include "multi_camera.hpp"
-#undef int64
-#include "ni-daqmx.hpp"
+#include "tcp_client.hpp"
+#include "strANSIseq.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -13,7 +10,7 @@
 
 #define HMAN_PORT 5000
 
-class Hman
+class Hman : virtual public ESC::CLI
 {
     public:
     enum Mode
@@ -38,8 +35,6 @@ class Hman
      * @param address The IP address of the Hman.
      */
     void connect(const char *address);
-
-    void start_cameras();
 
     /**
      * @brief Sets the mode of the Hman.
@@ -138,19 +133,14 @@ class Hman
      */
     void add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax);
 
-    MultiCam cameras;
-    NI::ATI::FT6_sensor FTsensor;
-
     private:
-    Communication::Client m_client;
+    Communication::Client* m_client;
     int m_pkgSize;
     int m_nb_mot;
     int m_mode = -1;
     uint8_t m_cmd[255];
     uint8_t m_buff[255];
     bool m_verbose=false;
-
-    
 };
 
 #endif

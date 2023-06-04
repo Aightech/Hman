@@ -10,11 +10,15 @@
 	path = tool_lib/built_lsl
 	url = git@github.com:Aightech/built_lsl
 	branch = main
-[submodule "lib/camera"]
-	path = lib/camera
+[submodule "tool_lib/camera"]
+	path = tool_lib/camera
 	url = git@github.com:Aightech/camera
 	branch = main
-[submodule "lib/ni-daqmx"]
-	path = lib/ni-daqmx
+[submodule "tool_lib/ni-daqmx"]
+	path = tool_lib/ni-daqmx
 	url = git@github.com:Aightech/ni-daqmx
+	branch = main
+[submodule "lib/strANSIseq"]
+	path = lib/strANSIseq
+	url = git@github.com:Aightech/strANSIseq
 	branch = main

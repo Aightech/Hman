@@ -1,42 +1,34 @@
 #include "hman.hpp"
 #include "strANSIseq.hpp"
 
-Hman::Hman(int nb_mot, bool verbose) : m_nb_mot(nb_mot), m_verbose(verbose)
+Hman::Hman(int nb_mot, bool verbose)
+    : ESC::CLI(verbose, "Hman"), m_nb_mot(nb_mot), m_verbose(verbose)
 {
-    LOG("%s\t\tInitialised.\n",
-        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
+    logln("Initialised.", true);
     m_pkgSize = 2 + nb_mot * 8;
 };
 
 Hman::~Hman()
 {
-    LOG("%s\t\tDisconnecting...\n",
-        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
-    m_client.get_stat('d',18);
-    m_client.close_connection();
+    logln("Disconnected.", true);
+    m_client->get_stat('d', 18);
+    m_client->close_connection();
 };
 
 void Hman::connect(const char *address)
 {
-    LOG("%s\t\tConnecting...\n",
-        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
-    m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,
-                             -1);
+    logln("Connected.", true);
+    m_client = new Communication::TCP(m_verbose);
+    m_client->open_connection(address, HMAN_PORT, 1);
 }
 
-void Hman::start_cameras()
-{
-    LOG("%s\t\tSetting cameras...\n",
-        ESC::fstr("[Hman]", {ESC::BOLD, ESC::FG_YELLOW}).c_str());
-    for(int i = 0; i < 2; i++) cameras.addCamera(i * 2, 640, 360);
-}
 
 void Hman::set_mode(Hman::Mode mode)
 {
     m_mode = mode;
     m_cmd[0] = 'M';
     *(uint32_t *)(m_cmd + 2) = mode;
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client->writeS(m_cmd, m_pkgSize);
 }
 
 void Hman::set_values(int32_t *val, int n)
@@ -44,7 +36,7 @@ void Hman::set_values(int32_t *val, int n)
     m_cmd[0] = 'V';
     m_cmd[1] = m_nb_mot;
     for(int i = 0; i < n; i++) { ((int32_t *)(m_cmd + 2))[i] = val[i]; }
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client->writeS(m_cmd, m_pkgSize);
 }
 
 void Hman::set_cartesian_pos(int32_t posx, int32_t posy, int32_t posz)
@@ -85,8 +77,8 @@ void Hman::get_pos(Pos &pos)
 {
     m_cmd[0] = 'P';
     m_cmd[1] = m_nb_mot;
-    m_client.writeS(m_cmd, m_pkgSize);
-    m_client.readS(m_buff, m_nb_mot * 4 + 2, true);
+    m_client->writeS(m_cmd, m_pkgSize);
+    m_client->readS(m_buff, m_nb_mot * 4 + 2, true);
     for(int i = 0; i < m_nb_mot; i++) pos.pos[i] = ((int32_t *)(m_buff))[i];
 }
 
@@ -94,8 +86,8 @@ void Hman::get_acc(float arr[3])
 {
     m_cmd[0] = 'X';
     m_cmd[1] = m_nb_mot;
-    m_client.writeS(m_cmd, m_pkgSize);
-    m_client.readS((uint8_t *)arr, 3 * 4);
+    m_client->writeS(m_cmd, m_pkgSize);
+    m_client->readS((uint8_t *)arr, 3 * 4);
 }
 
 void Hman::record_path(int32_t time, std::vector<Pos> &listPos)
@@ -143,14 +135,14 @@ void Hman::start_trajectory()
 {
     m_cmd[0] = 'T';
     m_cmd[1] = 1;
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client->writeS(m_cmd, m_pkgSize);
 }
 
 void Hman::stop_trajectory()
 {
     m_cmd[0] = 'T';
     m_cmd[1] = 0;
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client->writeS(m_cmd, m_pkgSize);
 }
 
 void Hman::add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax)
@@ -161,5 +153,5 @@ void Hman::add_to_trajectory(int32_t dx, int32_t dy, int32_t vmax, int32_t amax)
     *(int32_t *)(m_cmd + 6) = dy;
     *(int32_t *)(m_cmd + 10) = vmax;
     *(int32_t *)(m_cmd + 14) = amax;
-    m_client.writeS(m_cmd, m_pkgSize);
+    m_client->writeS(m_cmd, m_pkgSize);
 }
