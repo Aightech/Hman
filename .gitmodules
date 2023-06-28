@@ -22,3 +22,7 @@
 	path = lib/strANSIseq
 	url = git@github.com:Aightech/strANSIseq
 	branch = main
+[submodule "script/pyhman"]
+	path = script/pyhman
+	url = git@github.com:Aightech/pyhman
+	branch = main

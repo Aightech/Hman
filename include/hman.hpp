@@ -16,7 +16,7 @@ class Hman : virtual public ESC::CLI
     enum Mode
     {
         position = 0,
-        current = 2
+        current = 1
     };
 
     typedef struct

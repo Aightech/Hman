@@ -10,7 +10,6 @@
 #define int64 iint64 //conflicting typedef of int64
 #include "multi_camera.hpp"
 #undef int64
-#include "ni-daqmx.hpp"
 #include "joystick.h"
 
 #define DATA_TYPE int32_t

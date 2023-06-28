@@ -60,6 +60,9 @@ void setup()
   if (Ethernet.linkStatus() == LinkOFF)
     Serial.println("Ethernet cable is not connected.");
 
+   Serial.print("server is at ");
+  Serial.println(Ethernet.localIP());
+
   server.begin();
   ts = micros();
   
@@ -68,10 +71,10 @@ void setup()
   accel.setDataRate(ADXL345_DATARATE_3200_HZ);
   //displaySensorDetails();
   
-  int dx=40,dy=0, vm=20, am=60;
-  hman.add_delta_traj(dx, dy, vm,am);
-  hman.add_delta_traj(-dx, -dy,vm,am);
-  hman.start_traj();
+  // int dx=40,dy=0, vm=20, am=60;
+  // hman.add_delta_traj(dx, dy, vm,am);
+  // hman.add_delta_traj(-dx, -dy,vm,am);
+  // hman.start_traj();
 }
 
 
@@ -109,6 +112,8 @@ void loop()
             }
           case 'V'://set value (current, position, speed depending of the mode seleted)
             {
+              Serial.println(hman.mode());
+              Serial.println(*(int32_t*)(buff + 2));
               switch (hman.mode())
               {
                 case Motor::position:
@@ -121,7 +126,9 @@ void loop()
                     hman.set_motor_current((int32_t*)(buff + 2), index);
                     break;
                   }
+                  
               }
+              client.write((uint8_t*)(hman.get_pos()), 4 * index);
               break;
             }
           case 'P':// return encoder position
@@ -158,17 +165,17 @@ void loop()
             case 'T':// trajecory mode
             {
               if(index ==1)
-                hman.start_traj()
+                hman.start_traj();
               else if(index==2)
               {
-                int dx = (int32_t*)(buff + 2+4*0)
-                int dy = (int32_t*)(buff + 2+4*1)
-                int vm = (int32_t*)(buff + 2+4*2)
-                int am = (int32_t*)(buff + 2+4*3)
+                int dx = (int32_t*)(buff + 2+4*0);
+                int dy = (int32_t*)(buff + 2+4*1);
+                int vm = (int32_t*)(buff + 2+4*2);
+                int am = (int32_t*)(buff + 2+4*3);
                 hman.add_delta_traj(dx, dy,vm,am);
               }
               else
-                hman.stop_traj()
+                hman.stop_traj();
               break;
             }
         }

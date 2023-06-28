@@ -4,24 +4,22 @@
 Hman::Hman(int nb_mot, bool verbose)
     : ESC::CLI(verbose, "Hman"), m_nb_mot(nb_mot), m_verbose(verbose)
 {
-    logln("Initialised.", true);
     m_pkgSize = 2 + nb_mot * 8;
+    logln("Initialised.", true);
 };
 
 Hman::~Hman()
 {
-    logln("Disconnected.", true);
-    m_client->get_stat('d', 18);
     m_client->close_connection();
+    logln("Disconnected.", true);
 };
 
 void Hman::connect(const char *address)
 {
-    logln("Connected.", true);
+    logln("Connecting...", true);
     m_client = new Communication::TCP(m_verbose);
-    m_client->open_connection(address, HMAN_PORT, 1);
+    m_client->open_connection(address, HMAN_PORT, 10);
 }
-
 
 void Hman::set_mode(Hman::Mode mode)
 {
