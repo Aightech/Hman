@@ -18,11 +18,13 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 127, 250);
 EthernetServer server(5000);
 
-int pkgSize = 1 + 1 + 8 * NB_MOT; //cmd + index + data
+int pkgSize = 1 + 1 + 8 * 3; //cmd + index + data
 byte buff[255];
 
 IntervalTimer pid_timer;
 IntervalTimer traj_timer;
+
+long last_time = 0;
 
 void setup()
 {
@@ -45,8 +47,8 @@ void setup()
     LOGLN(String(":5000"));
     server.begin();
 
-
-    pid_timer.begin(update_pid, hman.update_dt_ms);
+    last_time = micros();
+    pid_timer.begin(update_pid, hman.update_dt_us);
     //traj_timer.begin(update_traj, hman.m_traj_dt_micro);
 
 
@@ -56,7 +58,16 @@ void setup()
     // hman.start_traj();
 }
 
-void update_pid() { hman.update(); }
+void update_pid() { 
+    if(micros()-last_time>hman.update_dt_us)
+    {
+        Serial.println("dt: "+String(micros()-last_time));
+    }
+    last_time=micros();
+    hman.update();
+    //Serial.println("dt: "+String(micros()-last_time));
+    
+     }
 void update_traj() { hman.trajectory(); }
 
 void loop()

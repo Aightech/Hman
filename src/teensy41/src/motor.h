@@ -58,12 +58,12 @@ class Motor
 
             o = Kpid[0] * m_perr + Kpid[1] * m_ierr + Kpid[2] * m_derr;
             //friction compensation: if the motor is stopped but the setpoint is not reached, the motor will not move
-            if(abs(m_speed) < 10 && abs(o) > 0.5)
-            {
-                double f = 0.10;
+            // if(abs(m_speed) < 10 && abs(o) > 0.5)
+            // {
+            //     double f = 0.10;
                 
-                o += (o > 0) ? -f : f;
-            }
+            //     o += (o > 0) ? -f : f;
+            // }
             o = (o < -1) ? -1 : ((o > 1) ? 1 : o); //ensure -1<o<1
 
             if(abs(m_speed) > 50)

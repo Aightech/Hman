@@ -23,6 +23,9 @@ class Hman
                                     2 + 3 * i + 1, 2 + 3 * i + 2);
         for(i = 0; i < 2; i++)
             m_motors[i]->update(m_valEndSwitch, NB_END_SWITCH);
+
+        m_servo.attach(18);
+        m_servo.write(10);
     };
 
     void set_cartesian_pos(double posx, double posy, double posz = 0) //in mm
@@ -32,8 +35,7 @@ class Hman
         if(NB_MOT >= 2)
             m_motors[0]->set_pos((-posx + posy) / m_conv_coef);
         m_motors[1]->set_pos((-posx - posy) / m_conv_coef);
-        // if(NB_MOT>=3)
-        //     m_motors[2]->set_pos(posz);
+        m_servo.write(posz);
     }
 
     void set_articular_pos(int32_t *pos, uint8_t n) //in encoder count
@@ -42,8 +44,11 @@ class Hman
             this->set_mode(Motor::position);
 
         if(n == 0xff)
+        {
             for(int i = 0; i < n && i < NB_MOT; i++)
                 m_motors[i]->set_pos(pos[i]);
+            m_servo.write(pos[2]);
+        }
         else
             m_motors[n]->set_pos(pos[n]);
     };
@@ -53,8 +58,11 @@ class Hman
         if(m_mode != Motor::current)
             this->set_mode(Motor::current);
         if(n == 0xff)
+        {
             for(int i = 0; i < n && i < NB_MOT; i++)
                 m_motors[i]->set_current(cur[i]);
+            m_servo.write(cur[2]);
+        }
         else
             m_motors[n]->set_current(cur[n]);
     };
@@ -63,7 +71,8 @@ class Hman
     {
         for(int i = 0; i < 2 && i < NB_MOT; i++)
         {
-            for(int j = 0; j < 3; j++) m_motors[i]->Kpid[j] = Kpid[j] / 1000000.;
+            for(int j = 0; j < 3; j++)
+                m_motors[i]->Kpid[j] = Kpid[j] / 1000000.;
         }
     };
 
@@ -72,6 +81,7 @@ class Hman
         if(m_mode != Motor::current)
             this->set_mode(Motor::current);
         for(int i = 0; i < NB_MOT; i++) m_motors[i]->set_current(current);
+        m_servo.write(current);
     };
 
     static void test(){};
@@ -80,8 +90,8 @@ class Hman
     {
         if(m_running)
         {
-            for(int i = 0; i < NB_END_SWITCH; i++)
-                m_valEndSwitch[i] = digitalRead(m_pinEndSwitch[i]);
+            // for(int i = 0; i < NB_END_SWITCH; i++)
+            //     m_valEndSwitch[i] = digitalRead(m_pinEndSwitch[i]);
             for(int i = 0; i < NB_MOT; i++)
                 m_motors[i]->update(m_valEndSwitch, NB_END_SWITCH);
         }
@@ -111,12 +121,17 @@ class Hman
 
     uint8_t home()
     {
-        double Kpid[3] = {0.01,0.00001,0.005};
+        double Kpid[3] = {0.01, 0.00001, 0.005};
+        double prevKpid[3];
         get_pos();
         set_articular_pos(m_pos_motor, 0xff);
         for(int i = 0; i < 2 && i < NB_MOT; i++)
         {
-            for(int j = 0; j < 3; j++) m_motors[i]->Kpid[j] = Kpid[j];
+            for(int j = 0; j < 3; j++)
+            {
+                prevKpid[j] = m_motors[i]->Kpid[j];
+                m_motors[i]->Kpid[j] = Kpid[j];
+            }
         }
         Serial.println("homming");
 
@@ -130,6 +145,7 @@ class Hman
             set_mode(Motor::Mode::position);
             delay(10);
         }
+        Serial.println("Y OK");
         delay(500);
         while(digitalRead(m_pinEndSwitch[1]) == HIGH)
         {
@@ -140,7 +156,9 @@ class Hman
             set_articular_pos(m_pos_motor, 0xff);
             delay(10);
         }
+        Serial.println("X OK");
         delay(1000);
+        m_servo.write(0);
         for(int i = 0; i < 2 && i < NB_MOT; i++) { m_motors[i]->set_zero(); }
         m_pos_motor[1] = -400;
         m_pos_motor[0] = 0;
@@ -150,7 +168,10 @@ class Hman
         set_current(0);
         for(int i = 0; i < 2 && i < NB_MOT; i++) { m_motors[i]->set_zero(); }
         Serial.println("hommed");
-
+        for(int i = 0; i < 2 && i < NB_MOT; i++)
+        {
+            for(int j = 0; j < 3; j++) m_motors[i]->Kpid[j] = prevKpid[j];
+        }
 
         return 1;
     }
@@ -328,7 +349,7 @@ class Hman
         return 0;
     }
 
-    int32_t update_dt_ms = 100;
+    int32_t update_dt_us = 5000;
     //private:
     int i;
     Motor::Mode m_mode;
@@ -345,6 +366,5 @@ class Hman
     long m_traj_ind = 0;
     long m_traj_dt_micro = 1000;
     bool m_following_traj = false;
-    
 };
 int Motor::nb_mot = 0;
