@@ -8,6 +8,9 @@ if(0)
   set(EXTRA_LIBS "pthread" "util")
 endif()
 
+
+set(UNUSED_LIBS "ni-daqmx")
+
 ###### Boost libraries ######
 if(0)
   find_package(Boost 1.56 REQUIRED COMPONENTS system filesystem iostreams)
