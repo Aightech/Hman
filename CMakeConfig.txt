@@ -1,5 +1,5 @@
 set(EXEC_NAME hman)
-set(PROJECT_VERSION 4.11)
+set(PROJECT_VERSION 4.12)
 
 ###### Special libraries ######
 set(EXTRA_LIBS "")
