@@ -76,6 +76,12 @@ class Hman
         }
     };
 
+    void set_max_speed(int32_t *speed)
+    {
+        for(int i = 0; i < 2 && i < NB_MOT; i++)
+            m_motors[i]->max_speed = speed[i];
+    };
+
     void set_current(int32_t current) //in pwm
     {
         if(m_mode != Motor::current)
@@ -121,22 +127,23 @@ class Hman
 
     uint8_t home()
     {
-        double Kpid[3] = {0.01, 0.00001, 0.005};
-        double prevKpid[3];
-        get_pos();
-        set_articular_pos(m_pos_motor, 0xff);
-        for(int i = 0; i < 2 && i < NB_MOT; i++)
-        {
-            for(int j = 0; j < 3; j++)
-            {
-                prevKpid[j] = m_motors[i]->Kpid[j];
-                m_motors[i]->Kpid[j] = Kpid[j];
-            }
-        }
+        // double Kpid[3] = {0.005, 0.00001, 0.005};
+        // double prevKpid[3];
+        // get_pos();
+        // set_articular_pos(m_pos_motor, 0xff);
+        // for(int i = 0; i < 2 && i < NB_MOT; i++)
+        // {
+        //     for(int j = 0; j < 3; j++)
+        //     {
+        //         prevKpid[j] = m_motors[i]->Kpid[j];
+        //         m_motors[i]->Kpid[j] = Kpid[j];
+        //     }
+        // }
         Serial.println("homming");
-
-        while(digitalRead(m_pinEndSwitch[0]) == HIGH)
+        int touching = 0;
+        while(touching < 10)
         {
+            touching += (digitalRead(m_pinEndSwitch[0]) == LOW) ? 1 : 0;
             get_pos();
             int32_t inc = 50;
             m_pos_motor[1] += inc;
@@ -147,8 +154,10 @@ class Hman
         }
         Serial.println("Y OK");
         delay(500);
-        while(digitalRead(m_pinEndSwitch[1]) == HIGH)
+        touching = 0;
+        while(touching < 10)
         {
+            touching += (digitalRead(m_pinEndSwitch[1]) == LOW) ? 1 : 0;
             get_pos();
             int32_t inc = 50;
             m_pos_motor[1] += inc;
@@ -160,18 +169,22 @@ class Hman
         delay(1000);
         m_servo.write(0);
         for(int i = 0; i < 2 && i < NB_MOT; i++) { m_motors[i]->set_zero(); }
-        m_pos_motor[1] = -400;
-        m_pos_motor[0] = 0;
-        set_articular_pos(m_pos_motor, 0xff);
+        for(int i = 0;i<10;i++)
+        {
+            m_pos_motor[1] = -40*i;
+            m_pos_motor[0] = 0;
+            set_articular_pos(m_pos_motor, 0xff);
+            delay(10);
+        }
 
         delay(1000);
         set_current(0);
         for(int i = 0; i < 2 && i < NB_MOT; i++) { m_motors[i]->set_zero(); }
         Serial.println("hommed");
-        for(int i = 0; i < 2 && i < NB_MOT; i++)
-        {
-            for(int j = 0; j < 3; j++) m_motors[i]->Kpid[j] = prevKpid[j];
-        }
+        // for(int i = 0; i < 2 && i < NB_MOT; i++)
+        // {
+        //     for(int j = 0; j < 3; j++) m_motors[i]->Kpid[j] = prevKpid[j];
+        // }
 
         return 1;
     }

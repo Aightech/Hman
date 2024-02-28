@@ -16,7 +16,7 @@ class Motor
     {
         id = nb_mot;
         nb_mot++;
-        double Kp = 0, Ki = 0, Kd = 0;
+        double Kp = 0.007, Ki = 0.000001, Kd = 0;
         Kpid[0] = Kp;
         Kpid[1] = Ki;
         Kpid[2] = Kd;
@@ -49,14 +49,17 @@ class Motor
             m_perr = (m_setPoint - m_position);
             m_derr += m_perr;
             m_ierr += m_perr;
+            
             if(abs(m_perr) < 10)
                 m_ierr = 0;
-            m_ierr = max(-10000, min(10000, m_ierr));
-            //Serial.println(m_ierr);
+
+            m_ierr = max(-20000, min(20000, m_ierr));
+            
             m_speed -= m_position;
             m_speed = abs(m_speed);
 
             o = Kpid[0] * m_perr + Kpid[1] * m_ierr + Kpid[2] * m_derr;
+            
             //friction compensation: if the motor is stopped but the setpoint is not reached, the motor will not move
             // if(abs(m_speed) < 10 && abs(o) > 0.5)
             // {
@@ -66,9 +69,10 @@ class Motor
             // }
             o = (o < -1) ? -1 : ((o > 1) ? 1 : o); //ensure -1<o<1
 
-            if(abs(m_speed) > 50)
+            if(abs(m_speed) > max_speed)
+            
             {
-                Serial.println("saturate");
+                Serial.println("saturate: " + String(m_speed));
                 o = 0;
             }
         }
@@ -107,6 +111,8 @@ class Motor
     int16_t min_PWM = 410;
     int16_t max_PWM = 3686;
     double Kpid[3];
+
+    double max_speed = 50;
 
     Motor::Mode mode = Motor::current;
 

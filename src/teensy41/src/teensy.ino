@@ -28,10 +28,9 @@ long last_time = 0;
 
 void setup()
 {
-
     if(SERIAL_DEBUG)
         Serial.begin(9600);
-    
+        delay(1000);
     LOGLN("HMAN");
 
     Ethernet.begin(mac, ip); // start the Ethernet connection and the server:
@@ -95,6 +94,15 @@ void loop()
                 {
                     hman.set_Kpid((int32_t *)(buff + 2));
                     LOG("PID: [");
+                    for(int i = 0; i < 3; i++)
+                        LOG(" " + String(*(int32_t *)(buff + 2 + 4 * i)));
+                    LOGLN("]");
+                    break;
+                }
+                case 'S': //max speed
+                {
+                    hman.set_max_speed((int32_t *)(buff + 2));
+                    LOG("Max speed: [");
                     for(int i = 0; i < 3; i++)
                         LOG(" " + String(*(int32_t *)(buff + 2 + 4 * i)));
                     LOGLN("]");
