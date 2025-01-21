@@ -2,9 +2,9 @@
 #include <QuickPID.h>
 
 
-#define NB_MOT 2
 
-float Kp = 0.5, Ki = 2 , Kd = 0;
+
+float Kp = 5, Ki = 0 , Kd = 0;
 
 class Motor
 {
@@ -34,16 +34,25 @@ class Motor
 
     }
 
-    void update()
+    void update(int8_t* valEndSwitch, int n)
     {
-      int16_t o=0;
+      double o=0;
+      double v = m_position;
       if(m_mode==Motor::position)
       {
+        
         m_position = m_encoder.read();
-        noInterrupts();
-        m_pid.Compute();
-        interrupts();
-        o = m_output;
+        v -= m_position;
+        v = abs(v);
+        
+        
+//        noInterrupts();
+//        //m_output = 1*(m_setPoint-m_position);
+//        //m_pid.Compute();
+//        interrupts();
+        double kp = 18;
+        double kd = 20;
+        o = kp*(m_setPoint-m_position) + kd*v;
         
       }
       else if(m_mode==Motor::current)
@@ -63,8 +72,28 @@ class Motor
       }
 
       o += 410;
-      o = (o > 3686) ? 3686 : o;
+      o = (o > 2686) ? 2686 : o;
+//      for(int i = 0; i<n;i++)
+//        if(!valEndSwitch[i])
+//          o=410;
       analogWrite(m_drvPinPWM, o);
+//      if(m_id==0)
+//        {
+//          Serial.print(o);
+//          Serial.print("\t");
+//          Serial.print(m_position);
+//          Serial.print("\t");
+//          Serial.print(m_setPoint);
+//          Serial.print("\t");
+//        }
+//        else
+//        {
+//          Serial.print(o);
+//          Serial.print("\t");
+//          Serial.print(m_position);
+//          Serial.print("\t");
+//          Serial.println(m_setPoint);
+//        }
     }
 
 
@@ -97,7 +126,6 @@ class Motor
     int m_drvPinPWM;
     int m_drvPinEn;
     int m_drvPinDir;
-    int16_t v;
     Motor::Mode m_mode =  Motor::position;
 
 

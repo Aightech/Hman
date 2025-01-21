@@ -1,5 +1,5 @@
 set(EXEC_NAME hman)
-set(PROJECT_VERSION 1.15)
+set(PROJECT_VERSION 4.17)
 
 ###### Special libraries ######
 set(EXTRA_LIBS "")
@@ -7,6 +7,9 @@ set(TOOL_LIBS "")
 if(0)
   set(EXTRA_LIBS "pthread" "util")
 endif()
+
+
+set(UNUSED_LIBS "ni-daqmx")
 
 ###### Boost libraries ######
 if(0)

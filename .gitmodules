@@ -5,3 +5,24 @@
 [submodule "tool_lib/joystick"]
 	path = tool_lib/joystick
 	url = git@github.com:Aightech/joystick.git
+	branch = main
+[submodule "tool_lib/built_lsl"]
+	path = tool_lib/built_lsl
+	url = git@github.com:Aightech/built_lsl
+	branch = main
+[submodule "tool_lib/camera"]
+	path = tool_lib/camera
+	url = git@github.com:Aightech/camera
+	branch = main
+[submodule "tool_lib/ni-daqmx"]
+	path = tool_lib/ni-daqmx
+	url = git@github.com:Aightech/ni-daqmx
+	branch = main
+[submodule "lib/strANSIseq"]
+	path = lib/strANSIseq
+	url = git@github.com:Aightech/strANSIseq
+	branch = main
+[submodule "script/pyhman"]
+	path = script/pyhman
+	url = git@github.com:Aightech/pyhman
+	branch = main
