@@ -27,7 +27,6 @@ int state = HIGH;
 
 void setup()
 {
-  
   pinMode(13, OUTPUT);
    //digitalWrite(13, state);
   myTimer.begin(update11, 5000);

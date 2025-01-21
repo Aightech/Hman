@@ -3,8 +3,8 @@
 
 #include "com_client.hpp"
 #include <chrono>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #define HMAN_PORT 5000
 
@@ -24,14 +24,21 @@ class Hman
         int32_t t;
     } Pos;
 
+    /**
+     * @brief Construct a new Hman object
+     *
+     * @param nb_mot number of motors
+     **/
     Hman(int nb_mot = 2) : m_nb_mot(nb_mot) { m_pkgSize = 2 + nb_mot * 8; };
 
     ~Hman() { m_client.close_connection(); };
 
-    void
+
+  void
     connect(const char *address)
     {
-      m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,-1);
+        m_client.open_connection(Communication::Client::TCP, address, HMAN_PORT,
+                                 -1);
     };
 
     void
@@ -96,9 +103,8 @@ class Hman
         m_cmd[0] = 'P';
         m_cmd[1] = m_nb_mot;
         m_client.writeS(m_cmd, m_pkgSize);
-        m_client.readS(m_buff, m_nb_mot*4);
-        for(int i = 0; i < m_nb_mot; i++)
-            pos.pos[i] = ((int32_t *)(m_buff))[i];
+        m_client.readS(m_buff, m_nb_mot * 4);
+        for(int i = 0; i < m_nb_mot; i++) pos.pos[i] = ((int32_t *)(m_buff))[i];
     }
 
     void
@@ -118,12 +124,13 @@ class Hman
 
             this->get_pos(listPos[i]);
             listPos[i].t = duration_cast<microseconds>(now - begin).count();
-	    std::cout << listPos[i].pos[0] << ":"<< listPos[i].pos[1] << ":"<< listPos[i].t  << std::endl;
+            std::cout << listPos[i].pos[0] << ":" << listPos[i].pos[1] << ":"
+                      << listPos[i].t << std::endl;
             i++;
-	    usleep(1000);
+            usleep(1000);
             now = steady_clock::now();
         }
-	std::cout << i << std::endl;
+        std::cout << i << std::endl;
     }
 
     void
@@ -139,7 +146,7 @@ class Hman
         {
             while(duration_cast<us>(sc::now() - begin).count() < p.t) {};
             this->set_values(p.pos, m_nb_mot);
-	    std::cout << p.pos[0] << ":"<< p.pos[1] << ":"<< p.t  << std::endl;
+            std::cout << p.pos[0] << ":" << p.pos[1] << ":" << p.t << std::endl;
         }
     }
 

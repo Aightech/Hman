@@ -184,7 +184,7 @@ else ()
   target_include_directories(${EXEC_NAME}
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-
+  include(CMakePython.txt)
 
   ###### Instalation rule ######
   install(TARGETS ${EXEC_NAME} DESTINATION bin)
